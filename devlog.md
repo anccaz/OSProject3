@@ -12,3 +12,13 @@ Read through the project description carefully. Key constraints:
   19 keys (152 bytes), 19 values (152 bytes), 20 child pointers (160 bytes)
 - Minimal degree t=10 → max 19 keys, max 20 children
 - **Critical constraint: never more than 3 nodes in memory at once**
+
+---
+
+## Entry 2 – April 28, 2026 | BNode Class & Serialization
+
+**Goal:** Implement reliable node serialization/deserialization.
+
+- Built the `BNode` dataclass with `serialize()` and `deserialize()` methods.
+- Used `struct.pack_into('>Q', ...)` for fixed-offset writes into a 512-byte `bytearray`.
+
