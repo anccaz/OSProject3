@@ -9,3 +9,11 @@ import os
 import struct
 import csv
 
+# ─────────────────────────────────────────────
+# Constants
+# ─────────────────────────────────────────────
+BLOCK_SIZE      = 512
+MAGIC           = b"4348PRJ3"
+MIN_DEGREE      = 10                   # t = 10  →  max 19 keys, 20 children
+MAX_KEYS        = 2 * MIN_DEGREE - 1   # 19
+MAX_CHILDREN    = 2 * MIN_DEGREE       # 20
