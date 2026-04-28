@@ -22,3 +22,13 @@ MAX_CHILDREN    = 2 * MIN_DEGREE       # 20
 HDR_MAGIC_OFF   = 0
 HDR_ROOT_OFF    = 8
 HDR_NEXT_OFF    = 16
+
+# Node layout  (within a 512-byte block)
+NODE_ID_OFF     = 0
+NODE_PARENT_OFF = 8
+NODE_NKEYS_OFF  = 16
+NODE_KEYS_OFF   = 24                          # 19 × 8 = 152 bytes
+NODE_VALS_OFF   = 24 + MAX_KEYS * 8           # 176
+NODE_CHLD_OFF   = 24 + MAX_KEYS * 8 * 2      # 328  (20 × 8 = 160 bytes)
+
+
