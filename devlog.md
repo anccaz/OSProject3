@@ -22,3 +22,17 @@ Read through the project description carefully. Key constraints:
 - Built the `BNode` dataclass with `serialize()` and `deserialize()` methods.
 - Used `struct.pack_into('>Q', ...)` for fixed-offset writes into a 512-byte `bytearray`.
 
+---
+## Entry 3 – April 29, 2026 | Header & File Management
+
+**Goal:** Implement create, header read/write, and file validation.
+
+- `_build_header(root_id, next_block)` packs a 512-byte block.
+- `_read_header(f)` checks magic bytes on open and exits with error if invalid.
+- `_open_valid(filename, mode)` centralizes the "file exists + is valid" check
+used by every command except `create`.
+- For `create`: checked `os.path.exists` first to avoid overwriting files.
+- The first block written is a header with `root_id=0, next_block=1`, meaning
+the tree is empty and the next node will live at block 1.
+
+---
