@@ -266,3 +266,22 @@ def btree_search(f, key: int):
         else:
             block_id = node.children[node.n]
     return None
+
+
+def _traverse(f, block_id: int, pairs: list):
+    """In-order traversal; appends (key, value) pairs to list."""
+    if block_id == 0:
+        return
+    node = _load_node(f, block_id)
+    for i in range(node.n):
+        _traverse(f, node.children[i], pairs)
+        pairs.append((node.keys[i], node.values[i]))
+    _traverse(f, node.children[node.n], pairs)
+
+
+def btree_all_pairs(f) -> list:
+    root_id, _ = _read_header(f)
+    pairs = []
+    _traverse(f, root_id, pairs)
+    return pairs
+
