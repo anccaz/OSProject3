@@ -36,3 +36,29 @@ used by every command except `create`.
 the tree is empty and the next node will live at block 1.
 
 ---
+## Entry 4 – May 3, 2026 | B-Tree Insert
+
+**Goal:** Implement B-Tree insertion with the 3-node memory constraint.
+
+This was the most complex part. The algorithm follows CLRS B-Tree insertion:
+
+1. If tree empty: create root node at next_block.
+2. If root is full (19 keys): create new empty root, make old root its child,
+   call `_split_child` to split it, then proceed with insert.
+3. `_split_child(parent, i)`: splits `parent.children[i]` (which must be full).
+   - Load child (node 2 in memory alongside parent = node 1)
+   - Allocate new sibling at next_block (node 3)
+   - Move keys/values/children t..19 to sibling
+   - Promote median key[t-1] to parent
+   - Save all three nodes, update header
+   - Memory peak: parent + child + new_sib = 3 nodes ✓
+4. `_insert_nonfull(node, key, value)`: recursively descend, splitting full
+   children proactively on the way down so we never backtrack.
+
+**Memory constraint analysis during a split:**
+- In `_split_child`: parent (1) + child (2) + new_sib (3) = 3 nodes in memory.
+  After saves, all are written to disk before returning.
+- After a split, we reload child from disk before recursing,
+  maintaining ≤ 3 nodes in memory at any point.
+
+---

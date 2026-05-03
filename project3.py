@@ -127,3 +127,52 @@ def _alloc_node(f, next_block: int, root_id: int,
     new_next = next_block + 1
     _write_header(f, root_id, new_next)
     return node, new_next
+
+# B-Tree operations (<= 3 nodes in memory, no splitting or merging)
+
+def _split_child(f, parent: BNode, child_index: int,
+                 root_id: int, next_block: int) -> tuple:
+    """
+    Split parent.children[child_index] (which is full).
+    Returns (updated root_id, updated next_block).
+    Only parent + child + new_sibling are in memory simultaneously.
+    """
+    child = _load_node(f, parent.children[child_index])   # node 2
+
+    t = MIN_DEGREE
+    mid_key = child.keys[t - 1]
+    mid_val = child.values[t - 1]
+
+    # Build the new right sibling
+    new_sib = BNode(next_block, parent.block_id)           # node 3
+    new_sib.keys     = child.keys[t:]
+    new_sib.values   = child.values[t:]
+    new_sib.children = child.children[t:] + [0] * t
+    next_block += 1
+
+    # Trim the left child
+    child.keys     = child.keys[:t - 1]
+    child.values   = child.values[:t - 1]
+    child.children = child.children[:t] + [0] * t
+
+    # Insert median into parent
+    parent.keys.insert(child_index, mid_key)
+    parent.values.insert(child_index, mid_val)
+    parent.children.insert(child_index + 1, new_sib.block_id)
+    # Keep children list exactly MAX_CHILDREN long
+    parent.children = parent.children[:MAX_CHILDREN]
+
+    # Update parent pointers for new sibling's children
+    if not new_sib.is_leaf:
+        for cid in new_sib.children:
+            if cid != 0:
+                gc = _load_node(f, cid)
+                gc.parent_id = new_sib.block_id
+                _save_node(f, gc)
+
+    _save_node(f, child)
+    _save_node(f, new_sib)
+    _save_node(f, parent)
+    _write_header(f, root_id, next_block)
+
+    return root_id, next_block
