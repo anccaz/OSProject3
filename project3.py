@@ -248,3 +248,21 @@ def btree_insert(f, key: int, value: int):
         root_id, next_block = _insert_nonfull(f, root, key, value,
                                               root_id, next_block)
 
+def btree_search(f, key: int):
+    """Return (key, value) or None."""
+    root_id, _ = _read_header(f)
+    if root_id == 0:
+        return None
+
+    block_id = root_id
+    while block_id != 0:
+        node = _load_node(f, block_id)
+        for i, k in enumerate(node.keys):
+            if k == key:
+                return (k, node.values[i])
+            if key < k:
+                block_id = node.children[i]
+                break
+        else:
+            block_id = node.children[node.n]
+    return None
