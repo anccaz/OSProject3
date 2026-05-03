@@ -176,3 +176,41 @@ def _split_child(f, parent: BNode, child_index: int,
     _write_header(f, root_id, next_block)
 
     return root_id, next_block
+
+
+def _insert_nonfull(f, node: BNode, key: int, value: int,
+                    root_id: int, next_block: int) -> tuple:
+    """
+    Insert (key, value) into the subtree rooted at node,
+    which is guaranteed to be non-full.
+    Returns (root_id, next_block).
+    Memory: node + up to 1 child + 1 new node = ≤ 3.
+    """
+    i = node.n - 1
+
+    if node.is_leaf:
+        # Simple insert into leaf
+        node.keys.append(0)
+        node.values.append(0)
+        while i >= 0 and key < node.keys[i]:
+            node.keys[i + 1]   = node.keys[i]
+            node.values[i + 1] = node.values[i]
+            i -= 1
+        node.keys[i + 1]   = key
+        node.values[i + 1] = value
+        _save_node(f, node)
+        return root_id, next_block
+    else:
+        # Find child to descend into
+        while i >= 0 and key < node.keys[i]:
+            i -= 1
+        i += 1
+        child = _load_node(f, node.children[i])  # 2nd node in memory
+        if child.n == MAX_KEYS:
+            root_id, next_block = _split_child(f, node, i, root_id, next_block)
+            # After split, re-check which child to go into
+            if key > node.keys[i]:
+                i += 1
+        child = _load_node(f, node.children[i])  # reload (may have changed)
+        return _insert_nonfull(f, child, key, value, root_id, next_block)
+
