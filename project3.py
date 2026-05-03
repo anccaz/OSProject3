@@ -214,3 +214,37 @@ def _insert_nonfull(f, node: BNode, key: int, value: int,
         child = _load_node(f, node.children[i])  # reload (may have changed)
         return _insert_nonfull(f, child, key, value, root_id, next_block)
 
+def btree_insert(f, key: int, value: int):
+    """Top-level insert. Handles root splits."""
+    root_id, next_block = _read_header(f)
+
+    if root_id == 0:
+        # Tree is empty — create root
+        root = BNode(next_block, 0, [key], [value])
+        next_block += 1
+        root_id = root.block_id
+        _save_node(f, root)
+        _write_header(f, root_id, next_block)
+        return
+
+    root = _load_node(f, root_id)  # node 1
+
+    if root.n == MAX_KEYS:
+        # Root is full — split it
+        new_root = BNode(next_block, 0)  # node 2 (empty shell)
+        next_block += 1
+        new_root.children[0] = root_id
+        root.parent_id = new_root.block_id
+        _save_node(f, root)
+        _save_node(f, new_root)
+        root_id = new_root.block_id
+        _write_header(f, root_id, next_block)
+
+        root_id, next_block = _split_child(f, new_root, 0, root_id, next_block)
+        new_root = _load_node(f, root_id)
+        root_id, next_block = _insert_nonfull(f, new_root, key, value,
+                                              root_id, next_block)
+    else:
+        root_id, next_block = _insert_nonfull(f, root, key, value,
+                                              root_id, next_block)
+
