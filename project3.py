@@ -285,3 +285,17 @@ def btree_all_pairs(f) -> list:
     _traverse(f, root_id, pairs)
     return pairs
 
+
+# File validation helper
+def _open_valid(filename: str, mode: str):
+    """Open an existing, valid index file or exit with error."""
+    if not os.path.exists(filename):
+        sys.exit(f"Error: File '{filename}' does not exist.")
+    f = open(filename, mode)
+    # Validate magic
+    data = f.read(8)
+    if data != MAGIC:
+        f.close()
+        sys.exit(f"Error: '{filename}' is not a valid index file.")
+    f.seek(0)
+    return f
