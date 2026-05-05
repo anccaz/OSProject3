@@ -377,3 +377,18 @@ def cmd_print(args):
     else:
         for k, v in pairs:
             print(f"{k},{v}")
+
+
+def cmd_extract(args):
+    if len(args) < 2:
+        sys.exit("Usage: project3 extract <filename> <output_csv>")
+    filename, out_file = args[0], args[1]
+    if os.path.exists(out_file):
+        sys.exit(f"Error: Output file '{out_file}' already exists.")
+    with _open_valid(filename, 'rb') as f:
+        pairs = btree_all_pairs(f)
+    with open(out_file, 'w', newline='') as cf:
+        writer = csv.writer(cf)
+        for k, v in pairs:
+            writer.writerow([k, v])
+    print(f"Extracted {len(pairs)} pairs to '{out_file}'.")
