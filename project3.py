@@ -311,3 +311,17 @@ def cmd_create(args):
     with open(filename, 'wb') as f:
         f.write(_build_header(0, 1))
     print(f"Created index file '{filename}'.")
+
+
+def cmd_insert(args):
+    if len(args) < 3:
+        sys.exit("Usage: project3 insert <filename> <key> <value>")
+    filename = args[0]
+    try:
+        key   = int(args[1])
+        value = int(args[2])
+    except ValueError:
+        sys.exit("Error: key and value must be integers.")
+    with _open_valid(filename, 'r+b') as f:
+        btree_insert(f, key, value)
+    print(f"Inserted key={key}, value={value}.")
