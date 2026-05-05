@@ -299,3 +299,15 @@ def _open_valid(filename: str, mode: str):
         sys.exit(f"Error: '{filename}' is not a valid index file.")
     f.seek(0)
     return f
+
+
+# Commands
+def cmd_create(args):
+    if len(args) < 1:
+        sys.exit("Usage: project3 create <filename>")
+    filename = args[0]
+    if os.path.exists(filename):
+        sys.exit(f"Error: File '{filename}' already exists.")
+    with open(filename, 'wb') as f:
+        f.write(_build_header(0, 1))
+    print(f"Created index file '{filename}'.")
