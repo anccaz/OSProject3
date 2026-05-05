@@ -322,3 +322,23 @@ working set stays at or below 3 nodes.
 
 Verified fix by inserting 50 sequential keys and inspecting the resulting
 file with a hex dump — all parent pointers were consistent.
+
+---
+
+## Entry 6 – May 5, 2026 | Search & Traversal
+
+**Goal:** Implement search and in-order traversal.
+
+`btree_search(f, key)`: iterative descent. For each node:
+- Scan keys left to right
+- If `key == keys[i]` → return `(key, values[i])`
+- If `key < keys[i]` → follow `children[i]`
+- If we fall off the end → follow `children[n]`
+Only one node in memory at a time. ✓
+
+`_traverse(f, block_id, pairs)`: recursive in-order walk.
+For each node, interleave child subtree calls with key appends:
+`left_subtree | key[0] | mid_subtree | key[1] | ... | right_subtree`
+One node read per recursive call. Used for both `print` and `extract`.
+
+---
