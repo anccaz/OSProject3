@@ -341,3 +341,26 @@ def cmd_search(args):
         print(f"Error: Key {key} not found.")
     else:
         print(f"Found: key={result[0]}, value={result[1]}")
+
+
+def cmd_load(args):
+    if len(args) < 2:
+        sys.exit("Usage: project3 load <filename> <csv_file>")
+    filename, csv_file = args[0], args[1]
+    if not os.path.exists(csv_file):
+        sys.exit(f"Error: CSV file '{csv_file}' does not exist.")
+    with _open_valid(filename, 'r+b') as f:
+        with open(csv_file, 'r', newline='') as cf:
+            reader = csv.reader(cf)
+            count = 0
+            for row in reader:
+                if len(row) < 2:
+                    continue
+                try:
+                    k, v = int(row[0].strip()), int(row[1].strip())
+                except ValueError:
+                    print(f"Warning: Skipping invalid row {row}")
+                    continue
+                btree_insert(f, k, v)
+                count += 1
+    print(f"Loaded {count} key/value pairs from '{csv_file}'.")
