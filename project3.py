@@ -325,3 +325,19 @@ def cmd_insert(args):
     with _open_valid(filename, 'r+b') as f:
         btree_insert(f, key, value)
     print(f"Inserted key={key}, value={value}.")
+
+
+def cmd_search(args):
+    if len(args) < 2:
+        sys.exit("Usage: project3 search <filename> <key>")
+    filename = args[0]
+    try:
+        key = int(args[1])
+    except ValueError:
+        sys.exit("Error: key must be an integer.")
+    with _open_valid(filename, 'rb') as f:
+        result = btree_search(f, key)
+    if result is None:
+        print(f"Error: Key {key} not found.")
+    else:
+        print(f"Found: key={result[0]}, value={result[1]}")
