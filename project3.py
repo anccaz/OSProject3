@@ -364,3 +364,16 @@ def cmd_load(args):
                 btree_insert(f, k, v)
                 count += 1
     print(f"Loaded {count} key/value pairs from '{csv_file}'.")
+
+
+def cmd_print(args):
+    if len(args) < 1:
+        sys.exit("Usage: project3 print <filename>")
+    filename = args[0]
+    with _open_valid(filename, 'rb') as f:
+        pairs = btree_all_pairs(f)
+    if not pairs:
+        print("(empty index)")
+    else:
+        for k, v in pairs:
+            print(f"{k},{v}")
