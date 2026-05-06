@@ -392,3 +392,30 @@ def cmd_extract(args):
         for k, v in pairs:
             writer.writerow([k, v])
     print(f"Extracted {len(pairs)} pairs to '{out_file}'.")
+
+
+
+# Entry point
+COMMANDS = {
+    'create':  cmd_create,
+    'insert':  cmd_insert,
+    'search':  cmd_search,
+    'load':    cmd_load,
+    'print':   cmd_print,
+    'extract': cmd_extract,
+}
+
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit("Usage: project3 <command> [args...]\n"
+                 "Commands: create, insert, search, load, print, extract")
+    command = sys.argv[1].lower()
+    if command not in COMMANDS:
+        sys.exit(f"Error: Unknown command '{command}'.\n"
+                 f"Valid commands: {', '.join(COMMANDS)}")
+    COMMANDS[command](sys.argv[2:])
+
+
+if __name__ == '__main__':
+    main()

@@ -342,3 +342,56 @@ For each node, interleave child subtree calls with key appends:
 One node read per recursive call. Used for both `print` and `extract`.
 
 ---
+
+## Entry 7 – May 5, 2026 | Remaining Commands & Error Handling
+
+**Goal:** Implement load, print, extract and finalize all error paths.
+
+`load`: open CSV with Python's `csv.reader`, parse each row as `(int, int)`,
+call `btree_insert` for each. Skips and warns on malformed rows.
+
+`print`: calls `btree_all_pairs` (in-order traversal) and prints `key,value`
+per line to stdout.
+
+`extract`: same as print but writes to a CSV file. Checks output file doesn't
+already exist before writing.
+
+**Error handling review:**
+
+| Scenario | Handling |
+|---|---|
+| `create` on existing file | Exit with message, file untouched |
+| Command on missing index file | Exit with message |
+| File exists but bad magic | Exit with message |
+| Non-integer key or value | Exit with message |
+| `extract` to existing output file | Exit with message, file untouched |
+| CSV row malformed on `load` | Print warning, skip row, continue |
+| Search for missing key | Print not found message |
+| Unknown command | Print usage and exit |
+
+**Goal:** Full end-to-end test pass before submission.
+
+**Test 1: Basic insert & search**
+
+**Test 2: Print in sorted order**
+
+**Test 3: Load from CSV**
+Created input.csv with 50 entries. Loaded cleanly.
+Verified with `print` — all 50 keys appear in sorted order.
+
+**Test 4: Extract and reload**
+
+Output matched original. ✓
+
+**Test 5: Root split stress test**
+Inserted 50 sequential keys to trigger multiple splits.
+Verified all 50 keys retrievable via search after insertion.
+File structure confirmed correct via hex dump.
+
+**Test 6: Error conditions**
+- Double `create` → error, original file unchanged ✓
+- `insert` into non-existent file → error ✓
+- `extract` to existing file → error, output unchanged ✓
+
+Cleaned up print statements, verified all commands are lowercase per spec.
+Ready to submit.
