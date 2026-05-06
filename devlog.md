@@ -145,7 +145,7 @@ Error handling summary:
 
 ---
 
-## Entry 8 – May 7, 2026 | Final Testing & Cleanup
+## Entry 8 – May 6, 2026 | Final Testing & Cleanup
 
 **Goal:** Full end-to-end test pass before submission.
 
