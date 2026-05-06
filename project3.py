@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 CS4348 Project 3 - B-Tree Index File Manager
-Author: [Your Name]
+Author: Annie Li
 """
 
 import sys
