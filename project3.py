@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 CS4348 Project 3 - B-Tree Index File Manager
-Author: Annie Li
+Author: [Your Name]
 """
 
 import sys
@@ -9,10 +9,12 @@ import os
 import struct
 import csv
 
+
 # Constants
+
 BLOCK_SIZE      = 512
 MAGIC           = b"4348PRJ3"
-MIN_DEGREE      = 10                   # t = 10  →  max 19 keys, 20 children
+MIN_DEGREE      = 10          # t = 10  →  max 19 keys, 20 children
 MAX_KEYS        = 2 * MIN_DEGREE - 1   # 19
 MAX_CHILDREN    = 2 * MIN_DEGREE       # 20
 
@@ -28,6 +30,8 @@ NODE_NKEYS_OFF  = 16
 NODE_KEYS_OFF   = 24                          # 19 × 8 = 152 bytes
 NODE_VALS_OFF   = 24 + MAX_KEYS * 8           # 176
 NODE_CHLD_OFF   = 24 + MAX_KEYS * 8 * 2      # 328  (20 × 8 = 160 bytes)
+
+
 
 # Low-level I/O helpers
 def _pack8(n: int) -> bytes:
@@ -54,10 +58,11 @@ def _write_block(f, block_id: int, data: bytes):
     f.write(data)
     f.flush()
 
-# Header helpers 
+
+
+# Header helpers
 def _build_header(root_id: int, next_block: int) -> bytes:
-    """Construct the header block."""
-    data = bytearray(BLOCK_SIZE)
+    buf = bytearray(BLOCK_SIZE)
     buf[0:8]   = MAGIC
     buf[8:16]  = _pack8(root_id)
     buf[16:24] = _pack8(next_block)
@@ -111,7 +116,18 @@ class BNode:
             struct.pack_into('>Q', buf, NODE_CHLD_OFF + i * 8, c)
         return bytes(buf)
 
-    def _load_node(f, block_id: int) -> BNode:
+    @staticmethod
+    def deserialize(data: bytes) -> 'BNode':
+        block_id  = _unpack8(data, NODE_ID_OFF)
+        parent_id = _unpack8(data, NODE_PARENT_OFF)
+        n_keys    = _unpack8(data, NODE_NKEYS_OFF)
+        keys      = [_unpack8(data, NODE_KEYS_OFF + i * 8) for i in range(n_keys)]
+        values    = [_unpack8(data, NODE_VALS_OFF + i * 8) for i in range(n_keys)]
+        children  = [_unpack8(data, NODE_CHLD_OFF + i * 8) for i in range(MAX_CHILDREN)]
+        return BNode(block_id, parent_id, keys, values, children)
+
+
+def _load_node(f, block_id: int) -> BNode:
     return BNode.deserialize(_read_block(f, block_id))
 
 
@@ -128,7 +144,9 @@ def _alloc_node(f, next_block: int, root_id: int,
     _write_header(f, root_id, new_next)
     return node, new_next
 
-# B-Tree operations (<= 3 nodes in memory, no splitting or merging)
+
+
+# B-Tree operations  (≤ 3 nodes in memory)
 
 def _split_child(f, parent: BNode, child_index: int,
                  root_id: int, next_block: int) -> tuple:
@@ -214,6 +232,7 @@ def _insert_nonfull(f, node: BNode, key: int, value: int,
         child = _load_node(f, node.children[i])  # reload (may have changed)
         return _insert_nonfull(f, child, key, value, root_id, next_block)
 
+
 def btree_insert(f, key: int, value: int):
     """Top-level insert. Handles root splits."""
     root_id, next_block = _read_header(f)
@@ -247,6 +266,7 @@ def btree_insert(f, key: int, value: int):
     else:
         root_id, next_block = _insert_nonfull(f, root, key, value,
                                               root_id, next_block)
+
 
 def btree_search(f, key: int):
     """Return (key, value) or None."""
@@ -286,6 +306,7 @@ def btree_all_pairs(f) -> list:
     return pairs
 
 
+          
 # File validation helper
 def _open_valid(filename: str, mode: str):
     """Open an existing, valid index file or exit with error."""
@@ -299,6 +320,7 @@ def _open_valid(filename: str, mode: str):
         sys.exit(f"Error: '{filename}' is not a valid index file.")
     f.seek(0)
     return f
+
 
 
 # Commands
